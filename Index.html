@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tendon Guard 3.0 | Full Protocol</title>
+    <style>
+        :root {
+            --bg: #f4f4f9;
+            --surface: #ffffff;
+            --border: #d1d5db;
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1f2937;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        .container { max-width: 950px; margin: 0 auto; }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: var(--surface);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Summary Dashboard */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: var(--surface);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-top: 4px solid var(--primary);
+        }
+        .stat-val { font-size: 1.5rem; font-weight: bold; display: block; }
+        .stat-label { font-size: 0.85rem; color: #6b7280; text-transform: uppercase; }
+
+        /* Library Manager (Accordion) */
+        details {
+            background-color: #eef2ff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #c7d2fe;
+        }
+        summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--primary);
+            outline: none;
+        }
+        .manager-panel { padding: 20px; border-top: 1px solid #c7d2fe; }
+        
+        .edit-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e7ff;
+            align-items: center;
+        }
+        .edit-row select { width: auto; flex-grow: 1; }
+        .edit-row button { width: auto; }
+
+        /* Main Input Panel */
+        .input-panel {
+            background: var(--surface);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+            gap: 15px;
+            align-items: end;
+        }
+        @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
+
+        label { display: block; font-size: 0.75rem; font-weight: 700; margin-bottom: 5px; color: #4b5563; }
+        select, input, textarea {
+            width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;
+        }
+
+        /* Buttons */
+        .btn { padding: 12px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; color: white; transition: 0.2s; }
+        .btn-blue { background-color: var(--primary); }
+        .btn-green { background-color: var(--secondary); }
+        .btn-sm { padding: 8px 12px; font-size: 0.8rem; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-danger { background: transparent; border: 1px solid var(--danger); color: var(--danger); }
+
+        /* Table */
+        .table-container { background: var(--surface); border-radius: 8px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
+        thead { background-color: #f3f4f6; border-bottom: 2px solid #e5e7eb; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        
+        /* Badges & Feedback */
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+        .badge-green { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-red { background: #fee2e2; color: #b91c1c; }
+
+        #engine-msg { margin-top: 15px; padding: 15px; border-radius: 6px; display: none; font-size: 0.9rem; }
+        .msg-safe { background: #ecfdf5; color: #065f46; border-left: 4px solid var(--secondary); }
+        .msg-warn { background: #fffbeb; color: #92400e; border-left: 4px solid var(--warning); }
+        .msg-danger { background: #fef2f2; color: #b91c1c; border-left: 4px solid var(--danger); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <header>
+        <div>
+            <h1 style="margin:0; font-size:1.5rem;">Tendon Guard 3.0</h1>
+            <span style="color:#6b7280; font-size:0.9rem;">Phase V & VI Protocol</span>
+        </div>
+        <div>
+            <button class="btn btn-green" onclick="exportCSV()">Download .CSV</button>
+        </div>
+    </header>
+
+    <div class="summary-grid">
+        <div class="stat-card">
+            <span class="stat-val" id="total-vol">0</span>
+            <span class="stat-label">Total Volume (lbs)</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val" id="total-sets">0</span>
+            <span class="stat-label">Sets Logged</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-val" id="avg-rpe">0</span>
+            <span class="stat-label">Avg RPE</span>
+        </div>
+    </div>
+
+    <details>
+        <summary>⚙️ Manage Exercise Library (Edit / Add)</summary>
+        <div class="manager-panel">
+            
+            <h4 style="margin-top:0;">Add New Exercise</h4>
+            <div class="edit-row" style="background: #fff; padding: 10px; border-radius: 6px; border: 1px solid #ddd;">
+                <input type="text" id="new-ex-name" placeholder="Exercise Name">
+                <select id="new-ex-type">
+                    <option value="green">🟢 Green (Safe)</option>
+                    <option value="yellow">🟡 Yellow (Caution)</option>
+                    <option value="red">🔴 Red (Restricted)</option>
+                </select>
+                <button class="btn btn-blue btn-sm" onclick="addNewExercise()">Add</button>
+            </div>
+
+            <h4 style="margin-top:20px;">Edit Existing Safety Ratings</h4>
+            <p style="font-size:0.8rem; color:#666;">Select an exercise to change its safety category.</p>
+            
+            <div class="edit-row">
+                <select id="edit-select" onchange="loadEditDetails()">
+                    <option value="">-- Select Exercise to Edit --</option>
+                </select>
+                <select id="edit-type-select">
+                    <option value="green">🟢 Green (Safe)</option>
+                    <option value="yellow">🟡 Yellow (Caution)</option>
+                    <option value="red">🔴 Red (Restricted)</option>
+                </select>
+                <button class="btn btn-blue btn-sm" onclick="saveEdit()">Save Change</button>
+            </div>
+            
+            <div style="margin-top:15px; text-align:right;">
+                <button class="btn btn-danger btn-sm" onclick="resetLibrary()">Reset All to Defaults</button>
+            </div>
+        </div>
+    </details>
+
+    <div class="input-panel">
+        <h3 style="margin-top:0; margin-bottom:15px; font-size:1.1rem;">Log Workout</h3>
+        <div class="form-grid">
+            <div>
+                <label>Select Exercise</label>
+                <select id="ex-select" onchange="checkLogic()">
+                    </select>
+            </div>
+            <div>
+                <label>Sets</label>
+                <input type="number" id="ex-sets" placeholder="3">
+            </div>
+            <div>
+                <label>Reps</label>
+                <input type="number" id="ex-reps" placeholder="10">
+            </div>
+            <div>
+                <label>Weight (lbs)</label>
+                <input type="number" id="ex-weight" placeholder="135">
+            </div>
+            <div>
+                <label>RPE (1-10)</label>
+                <input type="number" id="ex-rpe" min="1" max="10" placeholder="7" oninput="checkLogic()">
+            </div>
+        </div>
+        
+        <div style="margin-top:15px;">
+            <label>Notes</label>
+            <textarea id="ex-notes" placeholder="How did the tendon feel?"></textarea>
+        </div>
+
+        <div id="engine-msg"></div>
+
+        <div style="margin-top:20px; text-align:right;">
+            <button class="btn btn-blue" onclick="addEntry()">Add to Logbook</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table id="log-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Weight</th>
+                    <th>Vol (lbs)</th>
+                    <th>RPE</th>
+                    <th>Notes</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+        <div id="empty-msg" style="text-align:center; padding:30px; color:#aaa;">No logs found.</div>
+    </div>
+    <div style="text-align:right; margin-top:10px;">
+        <button class="btn btn-danger btn-sm" onclick="clearLog()">Clear History</button>
+    </div>
+
+</div>
+
+<script>
+    // --- DATABASE CONFIG ---
+    
+    // Default Protocol List [Based on Sources 93-124]
+    const defaultLibrary = [
+        // --- PHASE V (4-6 Months) ---
+        // Green (Safe)
+        { id: 'sb_squat', name: 'Safety Bar Squat', category: 'Legs', type: 'green' },
+        { id: 'leg_press', name: 'Leg Press', category: 'Legs', type: 'green' },
+        { id: 'tricep', name: 'Tricep Extension', category: 'Push', type: 'green' },
+        { id: 'pushup', name: 'Push-Ups (Floor)', category: 'Push', type: 'green' },
+        { id: 'plank', name: 'High Plank Stability', category: 'Core', type: 'green' },
+        { id: 'rhythmic', name: 'Rhythmic Stabilization (Shoulder)', category: 'Rehab', type: 'green' },
+        { id: 'protraction', name: 'Supine Shoulder Protraction', category: 'Rehab', type: 'green' },
+        
+        // Yellow (Caution) - Isometrics/Submaximal
+        { id: 'row', name: 'Prone Row (Neutral)', category: 'Pull', type: 'yellow' },
+        { id: 'lat', name: 'Lat Pulldown (Pronated)', category: 'Pull', type: 'yellow' },
+        { id: 'curl_hammer', name: 'Hammer Curl (Neutral)', category: 'Arms', type: 'yellow' },
+        { id: 'pnf', name: 'Standing Shoulder PNF Diagonals', category: 'Rehab', type: 'yellow' },
+        { id: 'prone_y', name: 'Prone Y / T Raises', category: 'Rehab', type: 'yellow' },
+        
+        // Red (Restricted until clearance)
+        { id: 'plyo_bi', name: 'Bilateral Plyometrics (MedBall)', category: 'Power', type: 'red' }, // Wk 16+
+        { id: 'plyo_uni', name: 'Unilateral Plyometrics', category: 'Power', type: 'red' }, // Wk 20-22
+        { id: 'curl_sup', name: 'Supinated Bicep Curl', category: 'Arms', type: 'red' },
+
+        // --- PHASE VI (6+ Months / Sport Specific) ---
+        // Defaulted to RED/YELLOW until surgeon clearance
+        { id: 'bench_comp', name: 'Competition Bench Press', category: 'Sport', type: 'red' },
+        { id: 'squat_comp', name: 'Competition Low Bar Squat', category: 'Sport', type: 'yellow' },
+        { id: 'deadlift_conv', name: 'Deadlift (Conventional)', category: 'Sport', type: 'red' },
+        { id: 'deadlift_sumo', name: 'Deadlift (Sumo)', category: 'Sport', type: 'red' }
+    ];
+
+    // State Variables
+    let activeLibrary = [];
+    let workoutLog = [];
+
+    // --- INITIALIZATION ---
+    window.onload = function() {
+        initLibrary();
+        loadLog();
+        renderTable();
+        updateSummary();
+    };
+
+    // --- LIBRARY MANAGEMENT ---
+
+    function initLibrary() {
+        // 1. Get Base Defaults
+        let lib = JSON.parse(JSON.stringify(defaultLibrary)); 
+
+        // 2. Apply "Added" Exercises
+        const addedEx = JSON.parse(localStorage.getItem('tg_added_exercises')) || [];
+        lib = [...lib, ...addedEx];
+
+        // 3. Apply "Edited" Ratings
+        const editedRatings = JSON.parse(localStorage.getItem('tg_edited_ratings')) || {};
+        
+        lib.forEach(ex => {
+            if (editedRatings[ex.id]) {
+                ex.type = editedRatings[ex.id]; // Override the type
+            }
+        });
+
+        activeLibrary = lib;
+        populateDropdowns();
+    }
+
+    function populateDropdowns() {
+        // Main Logging Dropdown
+        const mainSel = document.getElementById('ex-select');
+        mainSel.innerHTML = '';
+        
+        // Edit Manager Dropdown
+        const editSel = document.getElementById('edit-select');
+        editSel.innerHTML = '<option value="">-- Select Exercise to Edit --</option>';
+
+        const groups = {
+            green: document.createElement('optgroup'),
+            yellow: document.createElement('optgroup'),
+            red: document.createElement('optgroup')
+        };
+        groups.green.label = "🟢 Strength (Safe)";
+        groups.yellow.label = "🟡 Volume (Caution)";
+        groups.red.label = "🔴 Restricted (Check Clearance)";
+
+        activeLibrary.forEach(ex => {
+            // Main Dropdown
+            let opt = document.createElement('option');
+            opt.value = ex.id;
+            opt.text = ex.name;
+            opt.setAttribute('data-type', ex.type);
+            opt.setAttribute('data-cat', ex.category);
+            groups[ex.type].appendChild(opt);
+
+            // Edit Dropdown
+            let editOpt = document.createElement('option');
+            editOpt.value = ex.id;
+            editOpt.text = ex.name;
+            editSel.appendChild(editOpt);
+        });
+
+        mainSel.appendChild(groups.green);
+        mainSel.appendChild(groups.yellow);
+        mainSel.appendChild(groups.red);
+    }
+
+    // --- ADD / EDIT FUNCTIONS ---
+
+    function addNewExercise() {
+        const name = document.getElementById('new-ex-name').value;
+        const type = document.getElementById('new-ex-type').value;
+
+        if(!name) { alert("Enter a name"); return; }
+
+        const newEx = {
+            id: 'cust_' + Date.now(),
+            name: name,
+            category: 'Custom',
+            type: type
+        };
+
+        const added = JSON.parse(localStorage.getItem('tg_added_exercises')) || [];
+        added.push(newEx);
+        localStorage.setItem('tg_added_exercises', JSON.stringify(added));
+
+        alert(`Added "${name}"`);
+        document.getElementById('new-ex-name').value = '';
+        initLibrary();
+    }
+
+    function loadEditDetails() {
+        const id = document.getElementById('edit-select').value;
+        if(!id) return;
+        
+        const ex = activeLibrary.find(e => e.id === id);
+        if(ex) {
+            document.getElementById('edit-type-select').value = ex.type;
+        }
+    }
+
+    function saveEdit() {
+        const id = document.getElementById('edit-select').value;
+        const newType = document.getElementById('edit-type-select').value;
+        
+        if(!id) { alert("Select an exercise first"); return; }
+
+        const edits = JSON.parse(localStorage.getItem('tg_edited_ratings')) || {};
+        edits[id] = newType;
+        localStorage.setItem('tg_edited_ratings', JSON.stringify(edits));
+
+        alert("Safety rating updated!");
+        initLibrary(); // Refresh lists
+    }
+
+    function resetLibrary() {
+        if(confirm("Reset all custom exercises and edits?")) {
+            localStorage.removeItem('tg_added_exercises');
+            localStorage.removeItem('tg_edited_ratings');
+            initLibrary();
+        }
+    }
+
+    // --- LOGIC ENGINE ---
+
+    function checkLogic() {
+        const sel = document.getElementById('ex-select');
+        const rpe = parseInt(document.getElementById('ex-rpe').value) || 0;
+        const type = sel.options[sel.selectedIndex].getAttribute('data-type');
+        const box = document.getElementById('engine-msg');
+
+        if(!rpe) { box.style.display = 'none'; return; }
+        
+        box.style.display = 'block';
+        box.className = '';
+
+        if(type === 'red') {
+            box.innerText = "⛔ STOP: This exercise is currently flagged as Restricted. Ensure clearance.";
+            box.classList.add('msg-danger');
+        } else if (type === 'yellow') {
+            if(rpe > 6) {
+                box.innerText = "⚠️ High Intensity Warning: For Caution exercises, keep RPE under 6 (Volume Focus).";
+                box.classList.add('msg-warn');
+            } else {
+                box.innerText = "✅ Good Volume Zone: Focus on control.";
+                box.classList.add('msg-safe');
+            }
+        } else {
+            if(rpe < 7) {
+                box.innerText = "🟢 Strength Zone: Load is safe. Increase weight next set.";
+                box.classList.add('msg-safe');
+            } else {
+                box.innerText = "✅ Optimal Loading.";
+                box.classList.add('msg-safe');
+            }
+        }
+    }
+
+    // --- LOGGING ---
+
+    function loadLog() {
+        workoutLog = JSON.parse(localStorage.getItem('tg_log_v2')) || [];
+    }
+
+    function addEntry() {
+        const sel = document.getElementById('ex-select');
+        const opt = sel.options[sel.selectedIndex];
+
+        const sets = parseInt(document.getElementById('ex-sets').value) || 0;
+        const reps = parseInt(document.getElementById('ex-reps').value) || 0;
+        const weight = parseInt(document.getElementById('ex-weight').value) || 0;
+        const rpe = parseInt(document.getElementById('ex-rpe').value) || 0;
+        const notes = document.getElementById('ex-notes').value;
+
+        if(!sets || !reps) { alert("Enter Sets and Reps"); return; }
+
+        const entry = {
+            id: Date.now(),
+            date: new Date().toLocaleDateString(),
+            category: opt.getAttribute('data-cat'),
+            exercise: opt.text,
+            type: opt.getAttribute('data-type'),
+            sets: sets, reps: reps, weight: weight, rpe: rpe, notes: notes,
+            volume: sets * reps * weight
+        };
+
+        workoutLog.unshift(entry);
+        localStorage.setItem('tg_log_v2', JSON.stringify(workoutLog));
+
+        renderTable();
+        updateSummary();
+        
+        document.getElementById('ex-notes').value = '';
+        document.getElementById('engine-msg').style.display = 'none';
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+        
+        if(workoutLog.length === 0) {
+            document.getElementById('empty-msg').style.display = 'block';
+            return;
+        }
+        document.getElementById('empty-msg').style.display = 'none';
+
+        workoutLog.forEach((row, index) => {
+            let badge = row.type === 'green' ? 'badge-green' : (row.type === 'yellow' ? 'badge-yellow' : 'badge-red');
+            
+            let tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td style="font-size:0.8rem; color:#666;">${row.date}</td>
+                <td><span class="badge ${badge}">${row.category}</span></td>
+                <td style="font-weight:600;">${row.exercise}</td>
+                <td>${row.sets}</td>
+                <td>${row.reps}</td>
+                <td>${row.weight}</td>
+                <td style="color:var(--primary); font-weight:bold;">${row.volume}</td>
+                <td>${row.rpe}</td>
+                <td style="font-size:0.8rem; color:#555;">${row.notes}</td>
+                <td><button onclick="deleteEntry(${index})" class="btn-danger btn-sm">&times;</button></td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function deleteEntry(index) {
+        if(confirm("Delete entry?")) {
+            workoutLog.splice(index, 1);
+            localStorage.setItem('tg_log_v2', JSON.stringify(workoutLog));
+            renderTable();
+            updateSummary();
+        }
+    }
+
+    function clearLog() {
+        if(confirm("Delete entire history?")) {
+            localStorage.removeItem('tg_log_v2');
+            workoutLog = [];
+            renderTable();
+            updateSummary();
+        }
+    }
+
+    function updateSummary() {
+        let vol = 0, sets = 0, rpeSum = 0;
+        workoutLog.forEach(r => { vol += r.volume; sets += r.sets; rpeSum += r.rpe; });
+        
+        document.getElementById('total-vol').innerText = vol.toLocaleString();
+        document.getElementById('total-sets').innerText = sets;
+        document.getElementById('avg-rpe').innerText = workoutLog.length ? (rpeSum / workoutLog.length).toFixed(1) : 0;
+    }
+
+    function exportCSV() {
+        if(!workoutLog.length) { alert("No data"); return; }
+        let csv = "Date,Category,Exercise,Sets,Reps,Weight,Volume,RPE,Notes\n";
+        workoutLog.forEach(r => {
+            let note = r.notes.replace(/,/g, " ");
+            csv += `${r.date},${r.category},${r.exercise},${r.sets},${r.reps},${r.weight},${r.volume},${r.rpe},${note}\n`;
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'TendonGuard_Log.csv';
+        a.click();
+    }
+</script>
+
+</body>
+</html>
